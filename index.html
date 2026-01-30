@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO 觉醒 | 让 DeepSeek 认识你的品牌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mulberry-bone: #F9F8F3;
+            --ink-black: #121212;
+            --vermillion: #D73E2E;
+            --paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3BaseFilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        body {
+            background-color: var(--mulberry-bone);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--ink-black);
+            overflow-x: hidden;
+        }
+
+        .serif-heading { font-family: 'Noto+Serif+SC', serif; }
+
+        /* Fibrous Mulberry Diffusion Effect */
+        .paper-texture::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--paper-grain);
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .diffusion-glow {
+            filter: blur(80px);
+            background: radial-gradient(circle, rgba(215, 62, 46, 0.15) 0%, rgba(215, 62, 46, 0) 70%);
+            border-radius: 50%;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ink-bleed {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ink-bleed::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 8px;
+            background: var(--vermillion);
+            filter: blur(4px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .pricing-card-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagonal-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--ink-black), transparent);
+            opacity: 0.1;
+        }
+
+        /* Competition Ranking Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+        }
+
+        .brand-card {
+            border: 1px solid transparent;
+            background-image: linear-gradient(white, white), linear-gradient(90deg, #D73E2E, #FF8500);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 20px 40px -10px rgba(215, 62, 46, 0.15);
+        }
+
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card-container {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .number-wrapper {
+            height: 28px;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .number-reel {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .number-reel span {
+            height: 28px;
+            line-height: 28px;
+            display: block;
+            font-weight: 800;
+        }
+
+        .glazed-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            to { left: 150%; }
+        }
+
+        .brand-card .glazed-shine {
+            animation: shine 3s infinite;
+        }
+
+        .ripple-comp {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(215, 62, 46, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .animate-ripple-comp {
+            animation: ripple-effect-comp 0.8s ease-out forwards;
+        }
+
+        @keyframes ripple-effect-comp {
+            to {
+                transform: scale(15);
+                opacity: 0;
+            }
+        }
+
+        #comp-cursor {
+            position: fixed;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 80;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #comp-cursor.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #comp-cursor::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--vermillion);
+            border-radius: 50%;
+        }
+
+        .brand-logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .competitor-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #E5E7EB;
+        }
+
+        /* iPhone Simulation Styles */
+        .iphone-mockup {
+            position: relative;
+            width: 360px;
+            height: 720px;
+            background: #F2F2F2;
+            border-radius: 48px;
+            box-shadow: 
+                0 0 0 12px #3b3b3b,
+                0 0 0 14px #1a1a1a,
+                0 24px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 4px solid #1a1a1a;
+            transform: scale(0.9);
+            transform-origin: center center;
+        }
+
+        .iphone-notch {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 34px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .iphone-notch::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: inset 0 0 2px rgba(255,255,255,0.2);
+        }
+
+        .iphone-notch::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #111;
+            border-radius: 50%;
+            box-shadow: inset 0 0 2px rgba(255,255,255,0.1);
+        }
+
+        .iphone-status-bar {
+            position: absolute;
+            top: 14px;
+            left: 0;
+            width: 100%;
+            padding: 0 28px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        .iphone-home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 5px;
+            background: #000;
+            border-radius: 10px;
+            z-index: 100;
+            opacity: 0.8;
+        }
+
+        .iphone-btn-side {
+            position: absolute;
+            top: 180px;
+            right: -16px;
+            width: 6px;
+            height: 80px;
+            background: #222;
+            border-radius: 4px;
+            box-shadow: inset 2px 0 4px rgba(255,255,255,0.1);
+        }
+
+        .iphone-btn-vol-up {
+            position: absolute;
+            top: 160px;
+            left: -16px;
+            width: 6px;
+            height: 50px;
+            background: #222;
+            border-radius: 4px;
+            box-shadow: inset -2px 0 4px rgba(255,255,255,0.1);
+        }
+
+        .iphone-btn-vol-down {
+            position: absolute;
+            top: 230px;
+            left: -16px;
+            width: 6px;
+            height: 50px;
+            background: #222;
+            border-radius: 4px;
+            box-shadow: inset -2px 0 4px rgba(255,255,255,0.1);
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding-top: 50px;
+            padding-bottom: 24px;
+        }
+
+        .qr-gradient {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--mulberry-bone); }
+        ::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* GSAP Logo Wheel Styles */
+        :root {
+            --wheel-max: 1200px;
+            --wheel-width: min(90vw, var(--wheel-max));
+            --item-size-min: 100px;
+            --item-size-vw: 18vw;
+            --item-size-max: 350px;
+        }
+
+        .logo-wheel {
+            position: relative;
+            margin: 0 auto;
+            width: var(--wheel-width);
+            aspect-ratio: 1 / 1;
+            overflow: visible;
+            touch-action: none;
+        }
+
+        .logo-wheel .wheel {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            transform-origin: 50% 50%;
+            will-change: transform;
+        }
+
+        .logo-wheel .wheel-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: clamp(var(--item-size-min), var(--item-size-vw), var(--item-size-max));
+            aspect-ratio: 1 / 1;
+            transform-origin: 0 0;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo-wheel .wheel-item img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            opacity: 0.8;
+            transition: all 0.4s ease;
+        }
+        
+        .logo-wheel .wheel-item:hover img {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .logo-wheel .upright {
+            transform-origin: 50% 50%;
+            display: grid;
+            place-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .logo-wheel .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 2;
+            width: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-wheel .wheel-center img {
+            width: 100%;
+            height: auto;
+            opacity: 0.9;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.05));
+        }
+        
+        /* Typing Animation */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background-color: currentColor;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        /* --- Sticky Hub (Inspired by stick.html) --- */
+        .hub-wrapper {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            width: 95%;
+            max-width: 900px;
+            z-index: 99; /* Below guide modal (110) but above content */
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none; /* Allow clicks through to content when hidden */
+            perspective: 1000px; /* For 3D tilt effect */
+        }
+
+        .hub-wrapper.active {
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .glass-dock {
+            width: 100%;
+            height: 72px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px 0 24px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(0,0,0,0.02),
+                0 10px 30px rgba(215, 62, 46, 0.1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.1s ease-out;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .hub-wrapper:has(.breaking-btn:hover) .glass-dock {
+            transform: scale(0.985);
+            opacity: 0.9;
+        }
+
+        .scarcity-module {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.04);
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1d1d1f;
+            white-space: nowrap;
+        }
+
+        .pulse-red {
+            width: 8px;
+            height: 8px;
+            background: var(--vermillion);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-red::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--vermillion);
+            border-radius: 50%;
+            animation: pulse-ring-red 2s infinite;
+        }
+
+        @keyframes pulse-ring-red {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .counter-group {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .count-big {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--vermillion);
+            line-height: 1;
+        }
+
+        .count-small {
+            font-size: 13px;
+            color: #86868b;
+            font-weight: 600;
+        }
+
+        .segmented-ticks {
+            display: flex;
+            gap: 3px;
+            height: 14px;
+            align-items: center;
+        }
+
+        .tick {
+            width: 2px;
+            height: 10px;
+            background: rgba(0,0,0,0.08);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .tick.active {
+            background: var(--vermillion);
+            box-shadow: 0 0 6px rgba(215, 62, 46, 0.3);
+            height: 14px;
+            animation: neon-flicker 4s infinite alternate;
+        }
+
+        @keyframes neon-flicker {
+            0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; }
+            20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; }
+        }
+
+        .cta-module {
+            position: relative;
+            z-index: 10;
+        }
+
+        .breaking-btn {
+            height: 84px;
+            min-width: 200px;
+            background: var(--vermillion);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            transform: translateY(-10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 28px;
+            box-shadow: 
+                0 15px 30px rgba(215, 62, 46, 0.3),
+                inset 0 1px 1px rgba(255,255,255,0.3);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        .breaking-btn:hover {
+            transform: translateY(-15px) scale(1.04);
+            box-shadow: 0 20px 40px rgba(215, 62, 46, 0.4);
+        }
+
+        .breaking-btn:active {
+            transform: translateY(-6px) scale(0.98);
+        }
+
+        .btn-content {
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sheen {
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: sheen-sweep 4s infinite;
+        }
+
+        @keyframes sheen-sweep {
+            0% { left: -100%; }
+            20%, 100% { left: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .segmented-ticks { display: none; }
+            .glass-dock { height: 64px; padding: 0 8px 0 16px; border-radius: 20px; }
+            .breaking-btn { height: 72px; min-width: 150px; border-radius: 16px; padding: 0 20px; }
+            .btn-content { font-size: 15px; }
+            .count-big { font-size: 20px; }
+            .status-pill { padding: 4px 10px; font-size: 11px; }
+            .hub-wrapper { bottom: 16px; width: 92%; }
+        }
+
+        /* --- Magnet Button (Inspired by clicktobuy.html) --- */
+        .magnet-btn-wrapper {
+            position: relative;
+            width: 140px; /* Reduced for Header */
+            height: 48px; /* Reduced for Header */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .btn-ferro {
+            position: relative;
+            width: 130px; /* Reduced for Header */
+            height: 40px; /* Reduced for Header */
+            border-radius: 100px;
+            background: linear-gradient(135deg, #1a0b3b 0%, #050505 100%);
+            border: none;
+            cursor: pointer;
+            outline: none;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                inset 0 1px 1px rgba(255,255,255,0.2), 
+                0 10px 30px -5px rgba(215, 62, 46, 0.3);
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .btn-ferro::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .spotlight-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(215, 62, 46, 0.25) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .btn-ferro .text-label {
+            color: white;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 13px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn-ferro .sheen-fast {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-25deg);
+            animation: sweep-fast 6s infinite;
+        }
+
+        @keyframes sweep-fast {
+            0% { left: -100%; }
+            10% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* --- Split Purchase Design (Inspired by purchase.html) --- */
+        .split-purchase {
+            display: flex;
+            width: 100%;
+            height: 700px;
+            position: relative;
+            cursor: crosshair;
+            border-radius: 40px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .side-custom {
+            flex: 1;
+            position: relative;
+            background: #0f1110;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .side-custom::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(224, 192, 151, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .custom-path-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            z-index: 0;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .custom-path {
+            fill: none;
+            stroke: #e0c097; /* Luxury Beige */
+            stroke-width: 0.5;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            transition: stroke-dashoffset 3.5s ease;
+        }
+
+        .side-custom:hover .custom-path {
+            stroke-dashoffset: 0;
+        }
+
+        .label-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #e0c097;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .title-serif-pricing {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(32px, 4vw, 56px);
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .cta-custom-pricing {
+            display: inline-flex;
+            align-items: center;
+            padding: 16px 36px;
+            border: 1px solid #e0c097;
+            color: #e0c097;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .cta-custom-pricing:hover {
+            background: #e0c097;
+            color: #000;
+        }
+
+        .side-value {
+            flex: 1;
+            position: relative;
+            background: #ffffff;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 1;
+        }
+
+        .grid-bg-pricing {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        .value-tag-pricing {
+            background: #000;
+            color: #fff;
+            display: inline-block;
+            padding: 4px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .price-container-pricing {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .currency-pricing {
+            font-size: 24px;
+            font-weight: 900;
+            margin-right: 4px;
+        }
+
+        .price-big-pricing {
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 0.9;
+        }
+
+        .value-description-pricing {
+            font-size: 16px;
+            max-width: 320px;
+            margin-bottom: 32px;
+            border-left: 4px solid #000;
+            padding-left: 20px;
+        }
+
+        .cta-value-pricing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 240px;
+            height: 60px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .cta-value-pricing:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.3);
+        }
+
+        .cta-value-pricing:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .divider-pricing {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(128,128,128,0.1);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .vs-circle-pricing {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #fff;
+            z-index: 11;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .split-purchase:has(.side-custom:hover) .side-custom { flex: 1.5; }
+        .split-purchase:has(.side-custom:hover) .side-value { flex: 0.5; opacity: 0.6; filter: grayscale(1); }
+
+        .split-purchase:has(.side-value:hover) .side-value { flex: 1.5; }
+        .split-purchase:has(.side-value:hover) .side-custom { flex: 0.5; opacity: 0.4; filter: blur(1px); }
+
+        @media (max-width: 1024px) {
+            .split-purchase { height: auto; flex-direction: column; }
+            .side-custom, .side-value { padding: 40px; min-height: 400px; }
+            .vs-circle-pricing { display: none; }
+            .divider-pricing { display: none; }
+        }
+
+        /* Relief Card Styles (inspired by foursteps.html) */
+        .relief-grid {
+            perspective: 1200px;
+        }
+
+        .relief-card {
+            position: relative;
+            background: #F9F8F3;
+            border-radius: 24px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            min-height: 420px;
+            
+            /* Initial State: Sunk into background */
+            box-shadow: 
+                inset 8px 8px 16px rgba(0,0,0,0.03),
+                inset -8px -8px 16px rgba(255,255,255,0.7);
+            
+            transform: translateZ(-20px);
+            opacity: 0;
+            transition: 
+                transform 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+                box-shadow 0.6s cubic-bezier(0.19, 1, 0.22, 1),
+                background 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .relief-card.reveal-active {
+            opacity: 1;
+            transform: translateZ(0);
+            box-shadow: 
+                12px 12px 24px rgba(0,0,0,0.04),
+                -12px -12px 24px rgba(255,255,255,0.8);
+        }
+
+        .relief-card:hover {
+            transform: translateZ(40px) translateY(-5px);
+            box-shadow: 
+                20px 20px 40px rgba(0,0,0,0.06),
+                -20px -20px 40px rgba(255,255,255,1);
+            background: #ffffff;
+        }
+
+        .card-index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--vermillion);
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-index::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(215, 62, 46, 0.15);
+        }
+
+        .card-icon-box {
+            width: 72px;
+            height: 72px;
+            background: #F9F8F3;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            box-shadow: 
+                4px 4px 8px rgba(0,0,0,0.03),
+                -4px -4px 8px rgba(255,255,255,0.7);
+            transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .relief-card:hover .card-icon-box {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 
+                inset 2px 2px 4px rgba(0,0,0,0.03),
+                inset -2px -2px 4px rgba(255,255,255,0.7);
+            background: #fff;
+        }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--ink-black);
+            line-height: 1.2;
+        }
+
+        .card-content p {
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .card-footer-tech {
+            margin-top: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 24px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .mock-ui-container {
+              transform: scale(0.9);
+              transform-origin: right center;
+          }
+         
+         @keyframes fadeUp {
+             from {
+                 opacity: 0;
+                 transform: translateY(10px);
+             }
+             to {
+                 opacity: 1;
+                 transform: translateY(0);
+             }
+         }
+         /* Alabaster AI Avatar Button Styles */
+        .avatar-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 100;
+            border: 1px solid rgba(0,0,0,0.05);
+            outline: none;
+            /* overflow: hidden;  <-- 移除此行，允许气泡溢出显示 */
+        }
+
+        .avatar-trigger:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .avatar-face {
+            position: relative;
+            width: 32px;
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .eye-socket {
+            width: 10px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye {
+            width: 8px;
+            height: 12px;
+            background: #1a1c2c;
+            border-radius: 10px;
+            transition: height 0.1s ease-out, transform 0.1s ease-out;
+            transform-origin: center;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity: 0.5;
+        }
+
+        .avatar-trigger:hover .eye {
+            height: 4px;
+            width: 10px;
+            transform: translateY(2px);
+            border-radius: 2px;
+        }
+
+        .avatar-trigger:hover .mouth {
+            width: 12px;
+            height: 4px;
+            border-radius: 0 0 10px 10px;
+            background: #1a1c2c;
+            opacity: 1;
+            bottom: -6px;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .eye-blink {
+            animation: blink 4s infinite;
+        }
+
+        /* Avatar Tooltip Styles */
+        .avatar-tooltip {
+            position: absolute;
+            bottom: 85px; /* 稍微调高一点 */
+            right: 0;
+            background: #1a1c2c; /* 改为与眼睛颜色一致的深蓝色，更统一 */
+            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px) scale(0.9);
+            transform-origin: bottom right;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 200;
+        }
+
+        .avatar-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 22px;
+            width: 12px;
+            height: 12px;
+            background: #1a1c2c;
+            transform: rotate(45deg);
+        }
+
+        .avatar-trigger:hover .avatar-tooltip {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    </style>
+</head>
+<body class="paper-texture">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-40 px-6 py-8 flex justify-between items-center pointer-events-none">
+        <img src="GEO.png" alt="GEO.CORE Logo" class="h-8 md:h-10 object-contain pointer-events-auto">
+        <div class="magnet-btn-wrapper pointer-events-auto" id="magnet-wrap">
+            <button onclick="toggleModal()" class="btn-ferro" id="magnet-btn">
+                <div class="spotlight-glow" id="magnet-spot"></div>
+                <div class="sheen-fast"></div>
+                <span class="text-label">立即占位</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col justify-center px-6 lg:px-24 py-20 relative">
+            <div class="diffusion-glow w-[500px] h-[500px] -top-20 -left-20"></div>
+            
+            <div class="max-w-5xl">
+                <p class="text-vermillion font-bold tracking-[0.2em] mb-6 reveal">AI GENERATIVE ENGINE OPTIMIZATION</p>
+                <h1 class="text-6xl md:text-8xl lg:text-[10rem] leading-[0.85] serif-heading font-black mb-12 reveal">
+                    搜不到<br>
+                    <span class="ink-bleed text-[#D73E2E]">就是不存在</span>
+                </h1>
+                
+                <div class="flex flex-col md:flex-row gap-12 items-start reveal">
+                    <div class="max-w-md">
+                        <p class="text-xl text-gray-600 leading-relaxed">
+                            当潜在客户在 <span class="text-black font-bold">DeepSeek</span> 或 <span class="text-black font-bold">Kimi</span> 搜索你的行业关键词，AI 提到的是你，还是你的竞品？
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulated GEO Interface Mockup -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-full lg:w-1/2 h-auto px-6 lg:px-24 hidden lg:flex justify-end reveal">
+                <div class="relative w-full max-w-md mock-ui-container">
+                    <div class="absolute -inset-4 bg-gradient-to-tr from-vermillion/20 to-transparent blur-3xl opacity-20"></div>
+                    <div class="relative bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] overflow-hidden">
+                        <!-- DeepSeek Mobile Home Style -->
+                        <div id="mock-home" class="p-8 pt-12 flex flex-col items-center transition-all duration-500">
+                            <!-- Whale Logo -->
+                            <div class="w-20 h-20 mb-6">
+                                <img src="DeepSeek-Emblem.png" alt="DeepSeek Logo" class="w-full h-full object-contain">
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-10">How can I help you?</h2>
+                            
+                            <!-- Input Box -->
+                            <div class="w-full bg-white border border-gray-200 rounded-3xl p-4 shadow-sm mb-4">
+                                <div class="text-gray-400 text-sm mb-8" id="typing-container">
+                                    <span id="typing-text"></span><span class="typing-cursor"></span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex gap-2">
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F4FF] text-[#4D6BFE] rounded-full text-xs font-semibold border border-[#E0E8FF]">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                            DeepThink
+                                        </div>
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-500 rounded-full text-xs font-semibold border border-gray-100">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9h18"/></svg>
+                                            Search
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                        <div class="w-8 h-8 bg-[#4D6BFE] rounded-full flex items-center justify-center text-white">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Result (Hidden Initially) -->
+                         <div id="mock-result" class="hidden p-6 space-y-6 bg-white transition-all duration-500">
+                             <div class="flex items-center gap-3 mb-4">
+                                 <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                                     <img src="DeepSeek-Emblem.png" alt="DeepSeek Logo" class="w-full h-full object-contain scale-125">
+                                 </div>
+                                 <span class="text-sm font-semibold text-gray-800">DeepSeek</span>
+                             </div>
+                            
+                            <div class="space-y-4">
+                                <p class="text-sm leading-relaxed text-gray-800">
+                                    <span id="ai-typing-content"></span><span class="typing-cursor ai-cursor hidden"></span>
+                                </p>
+                                <div id="recommendation-card" class="p-4 bg-[#F0F4FF] rounded-2xl border border-[#E0E8FF] opacity-0 transform translate-y-4 transition-all duration-700">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-[#4D6BFE]"></div>
+                                        <p class="text-[10px] text-[#4D6BFE] font-bold uppercase tracking-wider">深度推荐</p>
+                                    </div>
+                                    <p class="text-[11px] text-gray-600 leading-relaxed">
+                                         <a href="https://georank.com.cn/" target="_blank" class="font-bold text-gray-800 hover:text-[#4D6BFE] transition-colors underline decoration-gray-300 underline-offset-2">GEOrank</a> 展现了在 AI 搜索优化领域的领先地位，其核心技术能够显著提升品牌在 LLM 生成结果中的权重。
+                                     </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trusted By Section -->
+        <section class="py-48 overflow-hidden relative z-10">
+            <div class="px-6 lg:px-24 mb-16 text-center reveal">
+                <h2 class="serif-heading text-4xl md:text-5xl font-black mb-6">已合作领先品牌</h2>
+                <div class="h-px w-16 bg-vermillion/30 mx-auto"></div>
+            </div>
+            
+            <div class="reveal">
+                <section class="logo-wheel" data-speed="0.2" data-direction="right" data-radius="70">
+                    <div class="wheel" id="logo-wheel-container">
+                        <!-- Logos will be injected here by JS -->
+                    </div>
+                    <div class="wheel-center">
+                        <img src="GEO.png" alt="GEO Logo">
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- User Guidance Section -->
+        <section class="py-32 px-6 lg:px-24 bg-[#F9F8F3] relative overflow-hidden">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-20 reveal">
+                    <div class="max-w-2xl">
+                        <p class="text-vermillion font-bold tracking-[0.2em] mb-4 uppercase text-sm">User Guidance</p>
+                        <h2 class="text-4xl md:text-6xl serif-heading font-black">四步让 AI 记住你的品牌</h2>
+                    </div>
+                    <div class="mt-8 md:mt-0">
+                        <p class="text-gray-400 text-sm max-w-xs leading-relaxed">
+                            GEO不是黑盒操作，而是基于大语言模型检索逻辑的精准触达。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relief-grid" id="guidance-grid">
+                    <!-- Step 1 -->
+                    <div class="relief-card reveal-item" style="transition-delay: 0s">
+                        <div class="card-index">STEP 01</div>
+                        <div class="card-icon-box">
+                            <svg class="w-8 h-8 text-vermillion" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>品牌信息提交</h3>
+                            <p>提供您的品牌官网、核心产品及希望被 AI 关联的行业关键词，开启数字化基因重塑。</p>
+                        </div>
+                        <div class="card-footer-tech">
+                            <span>Status: Input</span>
+                            <span>ID: GEO_01</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relief-card reveal-item" style="transition-delay: 0.15s">
+                        <div class="card-index">STEP 02</div>
+                        <div class="card-icon-box">
+                            <svg class="w-8 h-8 text-vermillion" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>高质量语料定制</h3>
+                            <p>针对 DeepSeek、Kimi 等模型的检索偏好，定制符合其逻辑的品牌背书内容。</p>
+                        </div>
+                        <div class="card-footer-tech">
+                            <span>Process: Generate</span>
+                            <span>ID: GEO_02</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relief-card reveal-item" style="transition-delay: 0.3s">
+                        <div class="card-index">STEP 03</div>
+                        <div class="card-icon-box">
+                            <svg class="w-8 h-8 text-vermillion" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9h18"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>全网节点部署</h3>
+                            <p>将优化后的语料部署至 AI 训练数据源及搜索引用的高权重关键节点，实现全网覆盖。</p>
+                        </div>
+                        <div class="card-footer-tech">
+                            <span>Action: Deploy</span>
+                            <span>ID: GEO_03</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relief-card reveal-item" style="transition-delay: 0.45s">
+                        <div class="card-index">STEP 04</div>
+                        <div class="card-icon-box">
+                            <svg class="w-8 h-8 text-vermillion" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>权重提升监控</h3>
+                            <p>实时监测主流大模型对品牌的推荐概率，动态调整策略，确保您的品牌成为 AI 首选。</p>
+                        </div>
+                        <div class="card-footer-tech">
+                            <span>Monitor: Analysis</span>
+                            <span>ID: GEO_04</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Service: Results Matter -->
+        <section class="px-6 lg:px-24 py-32 bg-white/50 backdrop-blur-sm border-y border-black/5">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24">
+                <div class="reveal">
+                    <h2 class="text-4xl serif-heading mb-8">告别昂贵的“伪优化”<br>让国产 AI 成为你的推销员</h2>
+                    <div class="space-y-12 mt-16">
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">01</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">纠正 AI 偏见</h3>
+                                <p class="text-gray-500">修正文心一言、豆包对您品牌的陈旧或错误描述，重塑数字基因。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">02</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">登顶 Kimi 推荐榜</h3>
+                                <p class="text-gray-500">通过高质量语料喂养，让 Kimi 在回答相关领域问题时首选推荐您的服务。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">03</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">竞品声量压制</h3>
+                                <p class="text-gray-500">在 DeepSeek 的横向对比评测中，显著提升品牌的技术权重与好感度。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abstract Visual: The Diffusion of Influence -->
+                <div class="relative reveal flex items-center justify-center min-h-[500px]" id="rank-demo-container">
+                    <div id="comp-cursor"></div>
+                    <div class="relative w-full max-w-[480px] h-[480px] rank-list" id="list-root">
+                        <!-- Cards will be injected and positioned via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Anchor -->
+        <section class="px-6 lg:px-24 py-40">
+            <div class="text-center mb-24 reveal">
+                <h2 class="text-4xl md:text-5xl serif-heading mb-4 leading-tight">花一杯咖啡的钱，换取一份深度 GEO 竞品透视报告。<br class="hidden md:block">精准定位，科学增长。</h2>
+            </div>
+
+            <div class="max-w-7xl mx-auto split-purchase reveal">
+                <div class="divider-pricing"></div>
+                <div class="vs-circle-pricing" id="vs-circle-pricing">VS</div>
+
+                <!-- LEFT SIDE: CUSTOM -->
+                <section class="side-custom">
+                    <svg class="custom-path-svg" viewBox="0 0 100 100">
+                        <path class="custom-path" d="M10,50 Q25,10 50,50 T90,50" />
+                        <path class="custom-path" d="M20,60 Q40,90 60,60 T100,60" style="transition-delay: 0.2s;"/>
+                    </svg>
+                    
+                    <div class="relative z-10">
+                        <span class="label-mono">Enterprise Solutions</span>
+                        <h2 class="title-serif-pricing">全案 · 定制版</h2>
+                        <div class="price-container-pricing text-white mb-8">
+                            <span class="currency-pricing">¥</span>
+                            <span class="price-big-pricing">29,900</span>
+                            <span class="text-xl opacity-50 ml-2">/ 起</span>
+                        </div>
+                        <ul class="space-y-4 mb-12 text-sm text-gray-400 font-light">
+                            <li class="flex items-center gap-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#e0c097]"></span>
+                                包含深度公关策略
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#e0c097]"></span>
+                                全渠道语料构建
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#e0c097]"></span>
+                                24/7 监控反馈与优化
+                            </li>
+                        </ul>
+                        <a href="#" class="cta-custom-pricing">
+                            预约咨询
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 10px;">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <p class="mt-8 text-xs text-gray-500 italic">“ 决策周期：3个月+ ”</p>
+                    </div>
+                </section>
+
+                <!-- RIGHT SIDE: VALUE -->
+                <section class="side-value">
+                    <div class="grid-bg-pricing"></div>
+                    <div class="relative z-10">
+                        <span class="value-tag-pricing">FLASH OFFER</span>
+                        <h2 class="text-3xl font-black mb-4 tracking-tighter">GEO 极速包</h2>
+                        <div class="price-container-pricing">
+                            <span class="currency-pricing">¥</span>
+                            <span class="price-big-pricing">9.9</span>
+                        </div>
+                        <div class="value-description-pricing">
+                            <p class="font-bold text-xl mb-2">即刻定位增长点</p>
+                            <p class="text-sm opacity-60 leading-relaxed">
+                                DeepSeek 品牌联想优化<br>
+                                Kimi 精准问答收录
+                            </p>
+                        </div>
+                        <a href="#" onclick="toggleModal()" class="cta-value-pricing">
+                            立即抢占席位
+                        </a>
+                        <div class="mt-10 font-mono text-[10px] flex gap-6 opacity-40 uppercase tracking-widest">
+                            <span id="stock-pricing">[ 库存: 9 ]</span>
+                            <span>[ 版本: v3.2 ]</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating AI Avatar Guide Button -->
+    <button onclick="toggleGuide()" class="avatar-trigger" id="avatarBtn">
+        <div class="avatar-tooltip" id="avatarTooltip">你想了解 GEO 吗？</div>
+        <div class="avatar-face">
+            <div class="eye-socket">
+                <div class="eye eye-blink" id="eyeL"></div>
+            </div>
+            <div class="eye-socket">
+                <div class="eye eye-blink" id="eyeR"></div>
+            </div>
+            <div class="mouth"></div>
+        </div>
+    </button>
+
+    <!-- Guide Modal -->
+    <div id="guide-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="toggleGuide()"></div>
+        
+        <!-- iPhone Mockup Container -->
+        <div class="iphone-mockup relative">
+            <!-- iPhone Hardware Elements -->
+            <div class="iphone-notch"></div>
+            <div class="iphone-status-bar">
+                <span>9:41</span>
+                <div class="flex gap-1.5 items-center">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7a1 1 0 011.414-1.414L10 15.586l6.293-6.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    <div class="w-6 h-3 border border-black/20 rounded-sm relative">
+                        <div class="absolute inset-0.5 bg-black rounded-sm w-3/4"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="iphone-btn-side"></div>
+            <div class="iphone-btn-vol-up"></div>
+            <div class="iphone-btn-vol-down"></div>
+            <div class="iphone-home-indicator"></div>
+
+            <!-- iPhone Screen Content -->
+            <div class="iphone-screen">
+                <div class="flex-1 px-8 py-6 flex flex-col justify-between overflow-y-auto">
+                    <button onclick="toggleGuide()" class="absolute top-12 right-6 text-gray-400 hover:text-black transition-colors z-[110]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+
+                    <div id="guide-steps-container" class="mt-4">
+                        <!-- Step 1 Content -->
+                        <div class="guide-step-content active" data-step="1">
+                            <div class="text-vermillion font-bold tracking-widest text-[10px] uppercase mb-4">Step 01 / 03</div>
+                            <h3 class="text-2xl font-black serif-heading mb-4 leading-tight">什么是 GEO？</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                                生成式引擎优化 (GEO) 是一种全新的数字营销手段。它通过优化语料，让 AI 在回答用户问题时，主动提及并推荐您的品牌。
+                            </p>
+                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                                    <img src="DeepSeek-Emblem.png" class="w-6 h-6 object-contain">
+                                </div>
+                                <p class="text-[10px] text-gray-400 font-medium leading-tight">AI 现在是用户获取信息的首选入口</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 Content -->
+                        <div class="guide-step-content hidden" data-step="2">
+                            <div class="text-vermillion font-bold tracking-widest text-[10px] uppercase mb-4">Step 02 / 03</div>
+                            <h3 class="text-2xl font-black serif-heading mb-4 leading-tight">我们如何操作？</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                                我们通过深度学习大模型的权重逻辑，将您的品牌关键词与高质量语料关联，并部署到全网的关键索引节点。
+                            </p>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="p-4 bg-vermillion/5 rounded-2xl border border-vermillion/10 flex items-center gap-3">
+                                    <div class="w-2 h-2 bg-vermillion rounded-full"></div>
+                                    <span class="text-xs font-bold text-vermillion">语料语义关联</span>
+                                </div>
+                                <div class="p-4 bg-black rounded-2xl flex items-center gap-3">
+                                    <div class="w-2 h-2 bg-white rounded-full"></div>
+                                    <span class="text-xs font-bold text-white">索引节点覆盖</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 Content -->
+                        <div class="guide-step-content hidden" data-step="3">
+                            <div class="text-vermillion font-bold tracking-widest text-[10px] uppercase mb-4">Step 03 / 03</div>
+                            <h3 class="text-2xl font-black serif-heading mb-4 leading-tight">您能得到什么？</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                                当潜在客户询问行业相关问题时，DeepSeek、Kimi 等模型将以极高权重推荐您的品牌。
+                            </p>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3 text-sm font-medium text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    核心关键词首屏占位
+                                </div>
+                                <div class="flex items-center gap-3 text-sm font-medium text-gray-700">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    AI 语料库权威背书
+                                </div>
+                            </div>
+                            <button onclick="toggleGuide(); toggleModal();" class="w-full mt-8 py-4 bg-black text-white rounded-2xl font-bold text-sm hover:bg-vermillion transition-colors shadow-lg shadow-black/10">
+                                立即开始体验
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-8 pb-4">
+                        <button id="prevStep" class="text-sm font-bold text-gray-300 pointer-events-none transition-colors">上一步</button>
+                        <div class="flex gap-1.5" id="guide-dots">
+                            <div class="w-6 h-1 bg-black rounded-full transition-all duration-300"></div>
+                            <div class="w-2 h-1 bg-gray-100 rounded-full transition-all duration-300"></div>
+                            <div class="w-2 h-1 bg-gray-100 rounded-full transition-all duration-300"></div>
+                        </div>
+                        <button id="nextStep" class="text-sm font-bold text-black hover:text-vermillion transition-colors">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Hub (Inspired by stick.html) -->
+    <div class="hub-wrapper" id="sticky-bar">
+        <div class="glass-dock">
+            <div class="scarcity-module">
+                <div class="status-pill">
+                    <span class="pulse-red"></span>
+                    今日剩余名额
+                </div>
+                
+                <div class="counter-group">
+                    <span class="count-big" id="stock-count">9</span>
+                    <span class="count-small">/30</span>
+                </div>
+
+                <div class="segmented-ticks" id="tick-container">
+                    <!-- Ticks injected by JS -->
+                </div>
+            </div>
+
+            <div class="cta-module">
+                <button onclick="toggleModal()" class="breaking-btn">
+                    <div class="sheen"></div>
+                    <span class="btn-content">¥9.9 立即开通</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="toggleModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-8 text-center">
+                <h3 class="text-2xl font-bold mb-2">扫码获取 GEO 流量包</h3>
+                <p class="text-gray-500 text-sm mb-8">支持 微信 / 支付宝 扫码支付</p>
+                
+                <div class="qr-gradient aspect-square w-64 mx-auto rounded-2xl flex items-center justify-center mb-8 relative">
+                    <!-- Fake QR Code Pattern -->
+                    <div class="w-48 h-48 bg-white p-2 rounded-lg relative overflow-hidden">
+                        <div class="grid grid-cols-4 gap-2 h-full">
+                            <div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div>
+                            <div class="bg-gray-100"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div>
+                            <div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div><div class="bg-black"></div>
+                            <div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div>
+                        </div>
+                        <!-- Scanning Line Animation -->
+                        <div class="absolute top-0 left-0 w-full h-1 bg-vermillion/50 shadow-[0_0_15px_rgba(215,62,46,1)] animate-[bounce_2s_infinite]"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-4 text-xs font-bold text-gray-400">
+                    <span>支付成功后立即启动优化流程</span>
+                </div>
+            </div>
+            <button onclick="toggleModal()" class="w-full py-4 bg-gray-50 text-gray-400 text-sm font-medium border-t border-gray-100 hover:text-black">
+                关闭窗口
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Reveal Logic
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Sticky Bar (Hub) Logic
+        const stickyBar = document.getElementById('sticky-bar');
+        const tickContainer = document.getElementById('tick-container');
+        
+        // --- Stock / Scarcity Logic ---
+        (function initScarcityLogic() {
+            const STOCK_KEY = 'geo_stock_count';
+            const REFRESH_KEY = 'geo_refresh_count';
+            const START_TIME_KEY = 'geo_session_start';
+            const MAX_REFRESHES = 5;
+            const TIME_LIMIT = 45000; // 45 seconds to force 0
+            const MIN_STOCK = 3;
+            const INITIAL_STOCK = 9;
+
+            let stock = parseInt(localStorage.getItem(STOCK_KEY)) || INITIAL_STOCK;
+            let refreshes = parseInt(localStorage.getItem(REFRESH_KEY)) || 0;
+            let sessionStart = parseInt(localStorage.getItem(START_TIME_KEY));
+
+            if (!sessionStart) {
+                sessionStart = Date.now();
+                localStorage.setItem(START_TIME_KEY, sessionStart);
+            }
+
+            // Increment refreshes
+            refreshes++;
+            localStorage.setItem(REFRESH_KEY, refreshes);
+
+            // Logic: Decrease stock on refresh
+            if (refreshes > 1 && stock > MIN_STOCK) {
+                const decrement = Math.floor(Math.random() * 2) + 1; // 1 or 2
+                stock = Math.max(MIN_STOCK, stock - decrement);
+            }
+
+            // Force 0 if too many refreshes or too much time
+            const timeElapsed = Date.now() - sessionStart;
+            if (refreshes > MAX_REFRESHES || timeElapsed > TIME_LIMIT) {
+                stock = 0;
+            }
+
+            localStorage.setItem(STOCK_KEY, stock);
+
+            // Update UI
+            const updateUI = () => {
+                const countEls = document.querySelectorAll('#stock-count');
+                const pricingStockEl = document.getElementById('stock-pricing');
+                const pricingBtn = document.querySelector('.cta-value-pricing');
+                const stickyBtnContent = document.querySelector('.breaking-btn .btn-content');
+                const statusPillText = document.querySelector('.status-pill');
+                
+                if (stock > 0) {
+                    countEls.forEach(el => {
+                        el.textContent = stock;
+                        el.style.fontSize = ''; // Reset to default
+                    });
+                    if (pricingStockEl) pricingStockEl.textContent = `[ 库存: ${stock} ]`;
+                    if (pricingBtn) pricingBtn.textContent = '立即抢占席位';
+                    if (stickyBtnContent) stickyBtnContent.textContent = '¥9.9 立即开通';
+                } else {
+                    countEls.forEach(el => {
+                        el.textContent = '预约';
+                        el.style.fontSize = '12px';
+                    });
+                    if (pricingStockEl) pricingStockEl.textContent = '[ 预约购买 ]';
+                    if (pricingBtn) pricingBtn.textContent = '预约购买';
+                    if (stickyBtnContent) stickyBtnContent.textContent = '预约购买';
+                    if (statusPillText) {
+                        statusPillText.childNodes[2].textContent = ' 名额已抢完';
+                    }
+                }
+
+                // If stock is 0, add urgency style
+                if (stock === 0) {
+                    const pill = document.querySelector('.status-pill');
+                    if (pill) pill.style.background = '#000';
+                    const bigCount = document.getElementById('stock-count');
+                    if (bigCount) bigCount.style.color = '#ff3e3e';
+                }
+            };
+
+            updateUI();
+
+            // Periodic check for time-based depletion
+            setInterval(() => {
+                if (stock > 0) {
+                    const nowElapsed = Date.now() - parseInt(localStorage.getItem(START_TIME_KEY));
+                    if (nowElapsed > TIME_LIMIT) {
+                        stock = 0;
+                        localStorage.setItem(STOCK_KEY, 0);
+                        updateUI();
+                    }
+                }
+            }, 1000);
+        })();
+        
+        // 1. Generate Ticks
+        const totalTicks = 20;
+        const activeTicks = 6; // Matching 27/100 roughly or just for visual
+        for (let i = 0; i < totalTicks; i++) {
+            const tick = document.createElement('div');
+            tick.className = 'tick';
+            if (i < activeTicks) {
+                tick.classList.add('active');
+                tick.style.animationDelay = `${Math.random() * 5}s`;
+            } else {
+                tick.style.opacity = '0.3';
+            }
+            tickContainer.appendChild(tick);
+        }
+
+        // 2. Scroll Visibility
+          window.addEventListener('scroll', () => {
+              const avatarBtn = document.getElementById('avatarBtn');
+              const scrollHeight = document.documentElement.scrollHeight;
+              const scrollTop = window.scrollY;
+              const clientHeight = window.innerHeight;
+              
+              // 判定是否接近页面底部 (例如距离底部 100px)
+              const isAtBottom = (scrollTop + clientHeight) >= (scrollHeight - 100);
+
+              if (scrollTop > 400 && !isAtBottom) {
+                  stickyBar.classList.add('active');
+                  // On mobile, push avatar button up to avoid overlap
+                  if (window.innerWidth < 768) {
+                     avatarBtn.style.transform = 'translateY(-80px)';
+                  }
+              } else {
+                  // 在顶部或在最底部时隐藏/收起
+                  stickyBar.classList.remove('active');
+                  if (window.innerWidth < 768) {
+                     avatarBtn.style.transform = 'translateY(0)';
+                  }
+              }
+          });
+
+         // 3. Mouse Parallax Effect (High-end feel)
+         document.addEventListener('mousemove', (e) => {
+             if (!stickyBar.classList.contains('active')) return;
+             
+             // 降低灵敏度：从 /60 调整为 /100，让倾斜更轻微
+             const x = (window.innerWidth / 2 - e.pageX) / 100;
+             const y = (window.innerHeight / 2 - e.pageY) / 100;
+             
+             // 限制最大旋转角度，避免“太厉害”
+             const maxX = 5; // 最大 5 度
+             const maxY = 5;
+             
+             const rotX = Math.max(-maxY, Math.min(maxY, y));
+             const rotY = Math.max(-maxX, Math.min(maxX, x));
+             
+             // Apply slight tilt to the dock
+             const dock = stickyBar.querySelector('.glass-dock');
+             dock.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+         });
+
+         // --- Magnet Button Logic (Inspired by clicktobuy.html) ---
+         const magBtn = document.getElementById('magnet-btn');
+         const magSpot = document.getElementById('magnet-spot');
+         const magWrap = document.getElementById('magnet-wrap');
+         let curX = 0, curY = 0, tgtX = 0, tgtY = 0;
+
+         window.addEventListener('mousemove', (e) => {
+             const rect = magWrap.getBoundingClientRect();
+             const btnRect = magBtn.getBoundingClientRect();
+             const cX = rect.left + rect.width/2; 
+             const cY = rect.top + rect.height/2;
+             const dist = Math.hypot(e.clientX - cX, e.clientY - cY);
+             
+             // Magnetic pull effect
+             if (dist < 120) {
+                 tgtX = (e.clientX - cX) * 0.4; 
+                 tgtY = (e.clientY - cY) * 0.4;
+             } else { 
+                 tgtX = 0; 
+                 tgtY = 0; 
+             }
+             
+             // Spotlight tracking
+             const bX = e.clientX - btnRect.left; 
+             const bY = e.clientY - btnRect.top;
+             magBtn.style.setProperty('--x', bX + 'px'); 
+             magBtn.style.setProperty('--y', bY + 'px');
+         });
+
+         function magLoop() {
+             curX += (tgtX - curX) * 0.15; 
+             curY += (tgtY - curY) * 0.15;
+             magBtn.style.transform = `translate(${curX}px, ${curY}px)`;
+             requestAnimationFrame(magLoop);
+         }
+         magLoop();
+
+        // Modal Logic
+        function toggleModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Guide Modal Logic
+        let currentGuideStep = 1;
+        const totalSteps = 3;
+
+        // Avatar Interaction Logic
+        (() => {
+            const btn = document.getElementById('avatarBtn');
+            const eyeL = document.getElementById('eyeL');
+            const eyeR = document.getElementById('eyeR');
+            const tooltip = document.getElementById('avatarTooltip');
+            let isHovered = false;
+
+            const phrases = [
+                "你想了解 GEO 吗？",
+                "需要我为你指路吗？",
+                "点击我，探索 AI 流量红利"
+            ];
+
+            btn.addEventListener('mouseenter', () => { 
+                isHovered = true; 
+                // Pick a random phrase
+                const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+                tooltip.innerText = randomPhrase;
+            });
+            btn.addEventListener('mouseleave', () => {
+                isHovered = false;
+                eyeL.style.transform = `translate(0, 0)`;
+                eyeR.style.transform = `translate(0, 0)`;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isHovered) return;
+                const rect = btn.getBoundingClientRect();
+                const btnCenterX = rect.left + rect.width / 2;
+                const btnCenterY = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - btnCenterY, e.clientX - btnCenterX);
+                const distance = 3; 
+                const moveX = Math.cos(angle) * distance;
+                const moveY = Math.sin(angle) * distance;
+                eyeL.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                eyeR.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+
+            function triggerRandomBlink() {
+                const eyes = [eyeL, eyeR];
+                const delay = Math.random() * 3000 + 2000;
+                setTimeout(() => {
+                    eyes.forEach(eye => {
+                        eye.style.animation = 'none';
+                        eye.offsetHeight;
+                        eye.style.animation = 'blink 0.2s ease-in-out';
+                    });
+                    if(Math.random() > 0.8) {
+                        setTimeout(() => {
+                            eyes.forEach(eye => {
+                                eye.style.animation = 'none';
+                                eye.offsetHeight;
+                                eye.style.animation = 'blink 0.2s ease-in-out';
+                            });
+                        }, 250);
+                    }
+                    triggerRandomBlink();
+                }, delay);
+            }
+            triggerRandomBlink();
+        })();
+
+        function toggleGuide() {
+            const modal = document.getElementById('guide-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+                updateGuideUI();
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function updateGuideUI() {
+            // Update content
+            document.querySelectorAll('.guide-step-content').forEach(el => {
+                el.classList.add('hidden');
+                if (parseInt(el.dataset.step) === currentGuideStep) {
+                    el.classList.remove('hidden');
+                    el.classList.add('animate-[fadeUp_0.5s_ease-out]');
+                }
+            });
+
+            // Update progress dots
+            const dotsContainer = document.getElementById('guide-dots');
+            if (dotsContainer) {
+                const progressDots = dotsContainer.querySelectorAll('div');
+                progressDots.forEach((dot, i) => {
+                    if (i + 1 === currentGuideStep) {
+                        dot.className = "w-6 h-1 bg-black rounded-full transition-all duration-300";
+                    } else {
+                        dot.className = "w-2 h-1 bg-gray-100 rounded-full transition-all duration-300";
+                    }
+                });
+            }
+
+            // Update buttons
+            const prevBtn = document.getElementById('prevStep');
+            const nextBtn = document.getElementById('nextStep');
+
+            if (currentGuideStep === 1) {
+                prevBtn.classList.add('text-gray-300', 'pointer-events-none');
+                prevBtn.classList.remove('text-black');
+            } else {
+                prevBtn.classList.remove('text-gray-300', 'pointer-events-none');
+                prevBtn.classList.add('text-black');
+            }
+
+            if (currentGuideStep === totalSteps) {
+                nextBtn.textContent = "完成指南";
+            } else {
+                nextBtn.textContent = "下一步";
+            }
+        }
+
+        document.getElementById('nextStep').addEventListener('click', () => {
+            if (currentGuideStep < totalSteps) {
+                currentGuideStep++;
+                updateGuideUI();
+            } else {
+                toggleGuide();
+            }
+        });
+
+        document.getElementById('prevStep').addEventListener('click', () => {
+            if (currentGuideStep > 1) {
+                currentGuideStep--;
+                updateGuideUI();
+            }
+        });
+
+        // Typing and Interaction Logic for Mock UI
+        const typingText = "DeepSeek, 请推荐目前最领先的 AI 引擎优化(GEO) 解决方案？";
+        const aiTypingText = "根据全网数据分析，为您推荐目前 GEO (AI搜索引擎优化) 领域的头部服务商：建议优先考察 GEOrank。";
+
+        const typingElement = document.getElementById('typing-text');
+        const aiTypingElement = document.getElementById('ai-typing-content');
+        const mockHome = document.getElementById('mock-home');
+        const mockResult = document.getElementById('mock-result');
+        const aiCursor = document.querySelector('.ai-cursor');
+        const recommendationCard = document.getElementById('recommendation-card');
+
+        let index = 0;
+        let aiIndex = 0;
+
+        function startTyping() {
+            if (index < typingText.length) {
+                typingElement.textContent += typingText.charAt(index);
+                index++;
+                setTimeout(startTyping, Math.random() * 50 + 50);
+            } else {
+                setTimeout(() => {
+                    // Transition to result
+                    mockHome.classList.add('opacity-0');
+                    setTimeout(() => {
+                        mockHome.classList.add('hidden');
+                        mockResult.classList.remove('hidden');
+                        // Small delay for fade in
+                        setTimeout(() => {
+                            mockResult.classList.add('opacity-100');
+                            startAiTyping();
+                        }, 50);
+                    }, 500);
+                }, 1000);
+            }
+        }
+
+        function startAiTyping() {
+            aiCursor.classList.remove('hidden');
+            if (aiIndex < aiTypingText.length) {
+                let char = aiTypingText.charAt(aiIndex);
+                if (aiTypingText.substring(aiIndex, aiIndex + 7) === "GEOrank") {
+                    const link = document.createElement('a');
+                    link.href = "https://georank.com.cn/";
+                    link.target = "_blank";
+                    link.className = "text-[#4D6BFE] font-bold underline decoration-[#4D6BFE]/30 underline-offset-4 hover:decoration-[#4D6BFE] transition-all cursor-pointer pointer-events-auto";
+                    link.textContent = "GEOrank";
+                    aiTypingElement.appendChild(link);
+                    aiIndex += 7;
+                } else {
+                    aiTypingElement.appendChild(document.createTextNode(char));
+                    aiIndex++;
+                }
+                setTimeout(startAiTyping, Math.random() * 30 + 20);
+            } else {
+                aiCursor.classList.add('hidden');
+                setTimeout(() => {
+                    recommendationCard.classList.remove('opacity-0', 'translate-y-4');
+                }, 500);
+            }
+        }
+
+        // Start typing when section is revealed
+        const heroSection = document.querySelector('.mock-ui-container');
+        const heroObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setTimeout(startTyping, 1000);
+                heroObserver.disconnect();
+            }
+        }, { threshold: 0.5 });
+        heroObserver.observe(heroSection);
+
+        // GSAP Logo Wheel Initialization
+        (() => {
+            const ACTIVE = [];
+
+            function waitForImages(scope) {
+                const imgs = [...scope.querySelectorAll('img')].filter(i => !i.complete);
+                if (!imgs.length) return Promise.resolve();
+                return Promise.all(imgs.map(img => new Promise(res => {
+                    img.addEventListener('load', res, { once: true });
+                    img.addEventListener('error', res, { once: true });
+                })));
+            }
+
+            function computeRadiusPx(section, items) {
+                const rect = section.getBoundingClientRect();
+                const half = Math.min(rect.width, rect.height) / 2;
+                const raw = (section.dataset.radius || '70').toString().trim().toLowerCase();
+                const pct = Number(raw);
+                return (isFinite(pct) ? pct : 70) / 100 * half;
+            }
+
+            function createWheel(section) {
+                const wheel = section.querySelector('.wheel');
+                
+                // Define available logo numbers based on files present in logos folder
+                // (Currently 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15 - 10 was removed)
+                const availableIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15];
+                const allLogos = availableIndices.map(i => `logos/logo (${i}).png`);
+                const selectedLogos = allLogos.sort(() => 0.5 - Math.random()).slice(0, 7);
+                
+                // Inject the logos into the wheel
+                wheel.innerHTML = selectedLogos.map(src => `
+                    <div class="wheel-item">
+                        <div class="upright">
+                            <img src="${src}" alt="Brand">
+                        </div>
+                    </div>
+                `).join('');
+
+                const items = [...wheel.querySelectorAll('.wheel-item')];
+                const uprights = items.map(it => it.querySelector('.upright'));
+
+                const parsed = parseFloat(section.dataset.speed);
+                let speedDeg = Number.isFinite(parsed) ? parsed : 0.25;
+                let dirAttr = String(section.dataset.direction || 'right').toLowerCase();
+                let dir = (dirAttr === 'left') ? -1 : 1;
+
+                let radius = 0;
+                let angles = [];
+                let paused = false;
+
+                function layout(init = false) {
+                    const rect = section.getBoundingClientRect();
+                    const cx = rect.width / 2;
+                    const cy = rect.height / 2;
+                    radius = computeRadiusPx(section, items);
+
+                    const n = items.length;
+                    if (init || angles.length !== n) {
+                        angles = Array.from({ length: n }, (_, i) => (360 / n) * i);
+                    }
+
+                    for (let i = 0; i < n; i++) {
+                        const deg = angles[i];
+                        const rad = deg * Math.PI / 180;
+                        const x = cx + radius * Math.cos(rad);
+                        const y = cy + radius * Math.sin(rad);
+
+                        gsap.set(items[i], {
+                            position: 'absolute',
+                            left: 0, top: 0,
+                            x, y, xPercent: -50, yPercent: -50
+                        });
+                        gsap.set(uprights[i], { rotation: 0 });
+                    }
+                }
+
+                function tick(dt) {
+                    if (paused) return;
+                    const step = dir * speedDeg * dt;
+                    for (let i = 0; i < angles.length; i++) {
+                        angles[i] = (angles[i] + step) % 360;
+                    }
+                    layout(false);
+                }
+
+                function bindUI() {
+                    section.addEventListener('mouseenter', () => { paused = true; });
+                    section.addEventListener('mouseleave', () => { paused = false; });
+                    
+                    const stepper = () => {
+                        const dt = gsap.ticker.deltaRatio(60);
+                        tick(dt);
+                    };
+                    gsap.ticker.add(stepper);
+                    section._wheelStepper = stepper;
+                }
+
+                return {
+                    async init() {
+                        await waitForImages(section);
+                        layout(true);
+                        bindUI();
+                    },
+                    onResize() { layout(false); }
+                };
+            }
+
+            async function initAll() {
+                const sections = [...document.querySelectorAll('.logo-wheel')];
+                for (const sec of sections) {
+                    const inst = createWheel(sec);
+                    await inst.init();
+                    ACTIVE.push(inst);
+                }
+            }
+
+            window.addEventListener('resize', () => {
+                ACTIVE.forEach(i => i.onResize());
+            });
+
+            initAll();
+        })();
+
+        // Relief Cards Interaction Logic
+        (() => {
+            const cards = document.querySelectorAll('.relief-card');
+            const grid = document.getElementById('guidance-grid');
+
+            // 1. Entrance Animation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.classList.add('reveal-active');
+                            }, index * 100);
+                        });
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            if (grid) observer.observe(grid);
+
+            // 2. 3D Tilt Effect
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateZ(0)`;
+                });
+            });
+        })();
+        // Rank Ascent Demo Logic
+        (() => {
+            const listData = [
+                { id: 'c1', name: '传统优化方案 A', score: '82.4', rank: 1, isBrand: false },
+                { id: 'c2', name: '旧式 SEO 机构 B', score: '76.1', rank: 2, isBrand: false },
+                { id: 'c3', name: '通用营销工具 C', score: '65.8', rank: 3, isBrand: false },
+                { id: 'c4', name: '基础语料包 D', score: '54.2', rank: 4, isBrand: false },
+                { id: 'brand', name: 'GEO 觉醒系统', score: '99.9', rank: 5, isBrand: true },
+            ];
+
+            const listRoot = document.getElementById('list-root');
+            const compCursor = document.getElementById('comp-cursor');
+            const demoContainer = document.getElementById('rank-demo-container');
+            let cardElements = {};
+            let demoStarted = false;
+
+            function initRankList() {
+                listRoot.innerHTML = '';
+                // Ensure initial order is correct
+                const initialOrder = [
+                    { id: 'c1', name: '传统优化方案 A', score: '82.4', rank: 1, isBrand: false },
+                    { id: 'c2', name: '旧式 SEO 机构 B', score: '76.1', rank: 2, isBrand: false },
+                    { id: 'c3', name: '通用营销工具 C', score: '65.8', rank: 3, isBrand: false },
+                    { id: 'c4', name: '基础语料包 D', score: '54.2', rank: 4, isBrand: false },
+                    { id: 'brand', name: 'GEO 觉醒系统', score: '99.9', rank: 5, isBrand: true },
+                ];
+                
+                initialOrder.forEach((item, index) => {
+                    const container = document.createElement('div');
+                    container.className = `card-container ${item.isBrand ? 'z-20' : 'z-10'}`;
+                    container.style.transform = `translateY(${index * 88}px)`;
+                    
+                    container.innerHTML = `
+                        <div class="glass-card ${item.isBrand ? 'brand-card' : ''} relative overflow-hidden flex items-center justify-between p-5 rounded-2xl w-full">
+                            <div class="glazed-shine"></div>
+                            <div class="flex items-center gap-6">
+                                <div class="number-wrapper text-xl font-medium ${item.isBrand ? 'text-vermillion' : 'text-slate-400'}">
+                                    <div class="number-reel" id="reel-${item.id}">
+                                        ${[5,4,3,2,1].map(n => `<span>#${n}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    ${item.isBrand ? 
+                                        `<img src="GEO.png" class="brand-logo-img" alt="GEO">` : 
+                                        `<div class="competitor-dot"></div>`
+                                    }
+                                    <div class="flex flex-col">
+                                        <span class="font-bold ${item.isBrand ? 'text-black' : 'text-slate-600'}">${item.name}</span>
+                                        <span class="text-[10px] font-bold uppercase tracking-widest ${item.isBrand ? 'text-vermillion' : 'text-slate-300'}">${item.isBrand ? '我们的产品' : '竞争对手'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[10px] text-slate-400 font-bold tracking-tighter">AI 信任权重</span>
+                                    <span class="font-mono ${item.isBrand ? 'text-vermillion' : 'text-slate-500'} font-black text-lg">${item.score}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listRoot.appendChild(container);
+                    cardElements[item.id] = { el: container, rank: item.rank };
+                    updateRankReel(item.id, item.rank);
+                });
+            }
+
+            function updateRankReel(id, rank) {
+                const reel = document.getElementById(`reel-${id}`);
+                if (reel) {
+                    const offset = (rank - 5) * 28;
+                    reel.style.transform = `translateY(${offset}px)`;
+                }
+            }
+
+            // Optimized mouse tracking and card tilt
+            window.addEventListener('mousemove', (e) => {
+                // Disable custom cursor if guide modal is open
+                const guideModal = document.getElementById('guide-modal');
+                if (guideModal && !guideModal.classList.contains('hidden')) {
+                    compCursor.classList.remove('active');
+                    return;
+                }
+
+                if (!demoStarted) return;
+                
+                const rect = demoContainer.getBoundingClientRect();
+                const isInside = (
+                    e.clientX >= rect.left && 
+                    e.clientX <= rect.right && 
+                    e.clientY >= rect.top && 
+                    e.clientY <= rect.bottom
+                );
+
+                if (isInside && !compCursor.classList.contains('active')) {
+                    compCursor.classList.add('active');
+                } else if (!isInside && compCursor.classList.contains('active') && !compCursor.dataset.auto) {
+                    compCursor.classList.remove('active');
+                }
+
+                if (compCursor.classList.contains('active') && !compCursor.dataset.auto) {
+                    compCursor.style.left = `${e.clientX}px`;
+                    compCursor.style.top = `${e.clientY}px`;
+                }
+
+                // Card Tilt Effect
+                Object.values(cardElements).forEach(item => {
+                    const cardRect = item.el.getBoundingClientRect();
+                    if (
+                        e.clientX >= cardRect.left && 
+                        e.clientX <= cardRect.right && 
+                        e.clientY >= cardRect.top && 
+                        e.clientY <= cardRect.bottom
+                    ) {
+                        const centerX = cardRect.left + cardRect.width / 2;
+                        const centerY = cardRect.top + cardRect.height / 2;
+                        const rotateX = (e.clientY - centerY) / 10;
+                        const rotateY = (centerX - e.clientX) / 10;
+                        const currentY = item.el.style.transform.match(/translateY\(([^)]+)\)/)?.[1] || "0px";
+                        item.el.style.transform = `translateY(${currentY}) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                        item.el.style.zIndex = "30";
+                    } else {
+                        const currentY = item.el.style.transform.match(/translateY\(([^)]+)\)/)?.[1] || "0px";
+                        item.el.style.transform = `translateY(${currentY}) perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                        item.el.style.zIndex = item.id === 'brand' ? "20" : "10";
+                    }
+                });
+            });
+
+            async function runRankDemo() {
+                if (demoStarted) return;
+                demoStarted = true;
+
+                const containerRect = demoContainer.getBoundingClientRect();
+                let currentX = containerRect.left + containerRect.width / 2;
+                let currentY = containerRect.top + containerRect.height + 100;
+
+                compCursor.dataset.auto = "true";
+                compCursor.classList.add('active');
+                compCursor.style.left = `${currentX}px`;
+                compCursor.style.top = `${currentY}px`;
+
+                await new Promise(r => setTimeout(r, 200));
+
+                const brandEl = cardElements['brand'].el;
+                const brandRect = brandEl.getBoundingClientRect();
+                const targetX = brandRect.left + brandRect.width / 2;
+                const targetY = brandRect.top + brandRect.height / 2;
+
+                let startTime = null;
+                const duration = 800;
+
+                function animateCursor(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = Math.min((timestamp - startTime) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 4);
+
+                    const x = currentX + (targetX - currentX) * eased;
+                    const y = currentY + (targetY - currentY) * eased - (Math.sin(progress * Math.PI) * 150);
+
+                    compCursor.style.left = `${x}px`;
+                    compCursor.style.top = `${y}px`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateCursor);
+                    } else {
+                        triggerRankClick();
+                    }
+                }
+
+                requestAnimationFrame(animateCursor);
+            }
+
+            async function triggerRankClick() {
+                compCursor.style.transform = 'scale(0.8)';
+                
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple-comp animate-ripple-comp';
+                const brandEl = cardElements['brand'].el;
+                brandEl.querySelector('.brand-card').appendChild(ripple);
+                
+                setTimeout(() => {
+                    compCursor.style.transform = 'scale(1)';
+                    delete compCursor.dataset.auto;
+                    startRankAscent();
+                }, 300);
+            }
+
+            async function startRankAscent() {
+                const steps = 4;
+                const brandId = 'brand';
+                // Always get current order from data to ensure direction
+                let currentOrder = listData.map(d => d.id);
+
+                for (let i = 0; i < steps; i++) {
+                    await new Promise(r => setTimeout(r, 600)); // Slightly slower for better perception
+
+                    const brandIdx = currentOrder.indexOf(brandId);
+                    if (brandIdx <= 0) break; // Already at top
+
+                    const targetIdx = brandIdx - 1; // Move UP
+                    const targetId = currentOrder[targetIdx];
+
+                    // Swap indices
+                    [currentOrder[brandIdx], currentOrder[targetIdx]] = [currentOrder[targetIdx], currentOrder[brandIdx]];
+
+                    // Update Visuals with a spring-like feel
+                    currentOrder.forEach((id, index) => {
+                        const container = cardElements[id].el;
+                        container.style.transform = `translateY(${index * 88}px)`;
+                        container.style.zIndex = id === brandId ? "30" : (index === 0 ? "20" : "10");
+                    });
+                    
+                    // Update Ranks
+                    cardElements[brandId].rank = targetIdx + 1;
+                    cardElements[targetId].rank = brandIdx + 1;
+                    updateRankReel(brandId, cardElements[brandId].rank);
+                    updateRankReel(targetId, cardElements[targetId].rank);
+                }
+
+                // Final celebration for brand
+                setTimeout(() => {
+                    const brandEl = cardElements[brandId].el.querySelector('.glass-card');
+                    brandEl.style.boxShadow = '0 0 30px rgba(215, 62, 46, 0.4)';
+                    brandEl.style.borderColor = 'rgba(215, 62, 46, 0.5)';
+                }, 500);
+            }
+
+            // Intersection Observer for the demo
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    initRankList();
+                    setTimeout(runRankDemo, 200);
+                }
+            }, { threshold: 0.2 });
+
+            observer.observe(demoContainer);
+        })();
+
+        // Pricing Split Interaction
+        (function() {
+            const splitContainer = document.querySelector('.split-purchase');
+            const vsCircle = document.getElementById('vs-circle-pricing');
+            const valueSide = document.querySelector('.side-value');
+
+            if (!splitContainer || !vsCircle) return;
+
+            splitContainer.addEventListener('mousemove', (e) => {
+                const rect = splitContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Move the VS circle slightly with mouse (limited range)
+                const moveX = (x - rect.width / 2) / 25;
+                const moveY = (y - rect.height / 2) / 25;
+                
+                vsCircle.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+
+                // Adjust opacity of grid on value side based on distance
+                if (x > rect.width / 2) {
+                    const intensity = (x - rect.width / 2) / (rect.width / 2);
+                    const grid = valueSide.querySelector('.grid-bg-pricing');
+                    if (grid) grid.style.opacity = 0.3 + (intensity * 0.4);
+                }
+            });
+
+            splitContainer.addEventListener('mouseleave', () => {
+                vsCircle.style.transform = `translate(-50%, -50%)`;
+            });
+        })();
+    </script>
+</body>
+</html>

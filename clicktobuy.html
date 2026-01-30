@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+  :root {
+    --x: 50%; --y: 50%;
+    --accent: #a855f7;
+  }
+  body { background: #050505; display: flex; justify-content: flex-end; padding: 40px; font-family: sans-serif; height: 100vh; }
+  .mag-container { position: relative; width: 180px; height: 60px; display: flex; justify-content: center; align-items: center; }
+  .btn-ferro {
+    position: relative;
+    width: 160px; height: 52px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #1a0b3b 0%, #050505 100%);
+    border: none;
+    cursor: pointer;
+    outline: none;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 
+      inset 0 1px 1px rgba(255,255,255,0.2), 
+      0 10px 30px -5px rgba(124, 58, 237, 0.4);
+    transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
+    z-index: 10;
+  }
+  .btn-ferro::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.06; pointer-events: none;
+  }
+  .spotlight {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .text { color: white; font-weight: 800; letter-spacing: 2px; font-size: 14px; position: relative; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .sheen {
+    position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-25deg);
+    animation: sweep 6s infinite;
+  }
+  @keyframes sweep { 0% { left: -100%; } 10% { left: 150%; } 100% { left: 150%; } }
+</style>
+</head>
+<body>
+<div class="mag-container" id="wrap">
+  <button class="btn-ferro" id="btn">
+    <div class="spotlight" id="spot"></div>
+    <div class="sheen"></div>
+    <span class="text">立即占位</span>
+  </button>
+</div>
+<script>
+  const btn = document.getElementById('btn');
+  const spot = document.getElementById('spot');
+  const wrap = document.getElementById('wrap');
+  let curX = 0, curY = 0, tgtX = 0, tgtY = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    const rect = wrap.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    const cX = rect.left + rect.width/2; const cY = rect.top + rect.height/2;
+    const dist = Math.hypot(e.clientX - cX, e.clientY - cY);
+    
+    if (dist < 120) {
+      tgtX = (e.clientX - cX) * 0.4; tgtY = (e.clientY - cY) * 0.4;
+    } else { tgtX = 0; tgtY = 0; }
+    
+    const bX = e.clientX - btnRect.left; const bY = e.clientY - btnRect.top;
+    btn.style.setProperty('--x', bX + 'px'); btn.style.setProperty('--y', bY + 'px');
+  });
+
+  function loop() {
+    curX += (tgtX - curX) * 0.15; curY += (tgtY - curY) * 0.15;
+    btn.style.transform = `translate(${curX}px, ${curY}px)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+</script>
+</body>
+</html>

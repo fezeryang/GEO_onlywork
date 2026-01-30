@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash UI | Dual Choice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700;900&family=JetBrains+Mono:wght@400;700&family=Noto+Serif+SC:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --custom-accent: #e0c097;
+            --value-accent: #ff3e3e;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-serif: 'Noto Serif SC', serif;
+            --transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: var(--font-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .split-purchase {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        /* --- LEFT: ELASTIC CALLIGRAPHIC PATH (CUSTOM) --- */
+        .side-custom {
+            flex: 1;
+            position: relative;
+            background: #0f1110;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            transition: var(--transition);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .side-custom::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(224, 192, 151, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .custom-path-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            z-index: 0;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .custom-path {
+            fill: none;
+            stroke: var(--custom-accent);
+            stroke-width: 0.5;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            transition: stroke-dashoffset 3s ease;
+        }
+
+        .side-custom:hover .custom-path {
+            stroke-dashoffset: 0;
+        }
+
+        .content-custom {
+            position: relative;
+            z-index: 2;
+        }
+
+        .label-mono {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--custom-accent);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .title-serif {
+            font-family: var(--font-serif);
+            font-size: clamp(48px, 6vw, 80px);
+            line-height: 1.1;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .cta-custom {
+            display: inline-flex;
+            align-items: center;
+            padding: 18px 40px;
+            border: 1px solid var(--custom-accent);
+            color: var(--custom-accent);
+            text-decoration: none;
+            font-size: 14px;
+            letter-spacing: 2px;
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .cta-custom:hover {
+            background: var(--custom-accent);
+            color: #000;
+        }
+
+        /* --- RIGHT: RIGID MODULAR ASSEMBLY (9.9) --- */
+        .side-value {
+            flex: 1;
+            position: relative;
+            background: #ffffff;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        .content-value {
+            position: relative;
+            z-index: 2;
+        }
+
+        .value-tag {
+            background: #000;
+            color: #fff;
+            display: inline-block;
+            padding: 4px 12px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .price-container {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .currency {
+            font-size: 32px;
+            font-weight: 900;
+            margin-right: 4px;
+        }
+
+        .price-big {
+            font-size: clamp(80px, 12vw, 160px);
+            font-weight: 900;
+            letter-spacing: -4px;
+            line-height: 0.9;
+        }
+
+        .value-description {
+            font-size: 18px;
+            max-width: 300px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--value-accent);
+            padding-left: 20px;
+        }
+
+        .cta-value {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 280px;
+            height: 70px;
+            background: var(--value-accent);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 8px 8px 0px #000;
+            transition: transform 0.1s;
+        }
+
+        .cta-value:active {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        /* --- INTERACTION OVERLAYS --- */
+        .divider {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(128,128,128,0.2);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .vs-circle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: var(--bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            z-index: 11;
+            transition: var(--transition);
+        }
+
+        /* --- HOVER STATES --- */
+        .split-purchase:has(.side-custom:hover) .side-custom { flex: 1.4; }
+        .split-purchase:has(.side-custom:hover) .side-value { flex: 0.6; opacity: 0.7; filter: grayscale(1); }
+
+        .split-purchase:has(.side-value:hover) .side-value { flex: 1.4; }
+        .split-purchase:has(.side-value:hover) .side-custom { flex: 0.6; opacity: 0.5; filter: blur(2px); }
+
+        @media (max-width: 768px) {
+            .split-purchase { flex-direction: column; }
+            .side-custom, .side-value { padding: 40px; }
+            .price-big { font-size: 80px; }
+            .vs-circle { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-purchase">
+        <div class="divider"></div>
+        <div class="vs-circle">VS</div>
+
+        <!-- LEFT SIDE: CUSTOM -->
+        <section class="side-custom">
+            <svg class="custom-path-svg" viewBox="0 0 100 100">
+                <path class="custom-path" d="M10,50 Q25,10 50,50 T90,50" />
+                <path class="custom-path" d="M20,60 Q40,90 60,60 T100,60" style="transition-delay: 0.2s;"/>
+            </svg>
+            
+            <div class="content-custom">
+                <span class="label-mono">Tailored Experience</span>
+                <h2 class="title-serif">意境 · 定制</h2>
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 40px; max-width: 400px; font-weight: 300; line-height: 1.6;">
+                    基于您的品味，构建独特的数字美学。每一次点击都是灵感的共鸣。
+                </p>
+                <a href="#" class="cta-custom">
+                    START CRAFTING 
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 10px;">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDE: VALUE -->
+        <section class="side-value">
+            <div class="grid-bg"></div>
+            <div class="content-value">
+                <span class="value-tag">FLASH OFFER</span>
+                <div class="price-container">
+                    <span class="currency">¥</span>
+                    <span class="price-big">9.9</span>
+                </div>
+                <div class="value-description">
+                    <p style="font-weight: 700; font-size: 24px;">即刻拥有</p>
+                    <p style="font-size: 14px; opacity: 0.7;">标准模块化组件包。高效、直接、不废话。</p>
+                </div>
+                <a href="#" class="cta-value">
+                    GRAB IT NOW
+                </a>
+                <div style="margin-top: 30px; font-family: var(--font-mono); font-size: 12px; display: flex; gap: 20px;">
+                    <span>[ STOCK: 124 ]</span>
+                    <span>[ VERSION: 2.0 ]</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const splitPurchase = document.querySelector('.split-purchase');
+        const vsCircle = document.querySelector('.vs-circle');
+        const customSide = document.querySelector('.side-custom');
+        const valueSide = document.querySelector('.side-value');
+
+        // Dynamic mouse interaction
+        splitPurchase.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            // Move the VS circle slightly with mouse
+            const moveX = (x - window.innerWidth / 2) / 20;
+            const moveY = (y - window.innerHeight / 2) / 20;
+            
+            vsCircle.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+
+            // Adjust opacity of grid on value side based on distance
+            const valueRect = valueSide.getBoundingClientRect();
+            if (x > valueRect.left) {
+                const intensity = (x - valueRect.left) / valueRect.width;
+                valueSide.querySelector('.grid-bg').style.opacity = 0.1 + (intensity * 0.3);
+            }
+        });
+
+        // Elastic animation reset on mouse leave
+        splitPurchase.addEventListener('mouseleave', () => {
+            vsCircle.style.transform = `translate(-50%, -50%)`;
+        });
+
+        // Intersection Observer for entry animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section').forEach(s => observer.observe(s));
+    </script>
+</body>
+</html>

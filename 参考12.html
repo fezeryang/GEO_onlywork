@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO 觉醒 | 让 DeepSeek 认识你的品牌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mulberry-bone: #F9F8F3;
+            --ink-black: #121212;
+            --vermillion: #D73E2E;
+            --paper-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3BaseFilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        body {
+            background-color: var(--mulberry-bone);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--ink-black);
+            overflow-x: hidden;
+        }
+
+        .serif-heading { font-family: 'Noto+Serif+SC', serif; }
+
+        /* Fibrous Mulberry Diffusion Effect */
+        .paper-texture::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--paper-grain);
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .diffusion-glow {
+            filter: blur(80px);
+            background: radial-gradient(circle, rgba(215, 62, 46, 0.15) 0%, rgba(215, 62, 46, 0) 70%);
+            border-radius: 50%;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ink-bleed {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ink-bleed::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 8px;
+            background: var(--vermillion);
+            filter: blur(4px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .pricing-card-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagonal-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--ink-black), transparent);
+            opacity: 0.1;
+        }
+
+        .qr-gradient {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--mulberry-bone); }
+        ::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+    </style>
+</head>
+<body class="paper-texture">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-40 mix-blend-difference px-6 py-8 flex justify-between items-center text-white">
+        <div class="text-xl font-extrabold tracking-tighter">GEO.CORE</div>
+        <button onclick="toggleModal()" class="px-5 py-2 border border-white/30 rounded-full text-sm font-medium hover:bg-white hover:text-black transition-all">
+            立即占位
+        </button>
+    </header>
+
+    <main class="relative">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col justify-center px-6 lg:px-24 py-20 relative">
+            <div class="diffusion-glow w-[500px] h-[500px] -top-20 -left-20"></div>
+            
+            <div class="max-w-5xl">
+                <p class="text-vermillion font-bold tracking-[0.2em] mb-6 reveal">AI GENERATIVE ENGINE OPTIMIZATION</p>
+                <h1 class="text-6xl md:text-8xl lg:text-[10rem] leading-[0.85] serif-heading font-black mb-12 reveal">
+                    搜不到<br>
+                    <span class="ink-bleed text-[#D73E2E]">就是不存在</span>
+                </h1>
+                
+                <div class="flex flex-col md:flex-row gap-12 items-start reveal">
+                    <div class="max-w-md">
+                        <p class="text-xl text-gray-600 leading-relaxed">
+                            当潜在客户在 <span class="text-black font-bold">DeepSeek</span> 或 <span class="text-black font-bold">Kimi</span> 搜索你的行业关键词，AI 提到的是你，还是你的竞品？
+                        </p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="toggleModal()" class="group relative px-10 py-5 bg-black text-white rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95">
+                            <span class="relative z-10 text-lg font-bold tracking-wide leading-none">开启 GEO 爆发式流量 ¥9.9</span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Abstract Shapes -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1/3 h-2/3 opacity-20 pointer-events-none reveal">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#000" d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.3,87.1,-15.7,85.6,-0.9C84,14,77.5,27.9,68.8,40.4C60.2,52.8,49.4,63.7,36.5,70.9C23.7,78.1,8.7,81.6,-6.3,80.5C-21.3,79.4,-36.3,73.8,-49.2,64.8C-62,55.8,-72.7,43.4,-78.9,29.1C-85.1,14.7,-86.7,-1.5,-83.4,-16.4C-80.1,-31.3,-71.8,-44.8,-60.1,-53.2C-48.4,-61.6,-33.2,-64.8,-19.4,-71.7C-5.6,-78.5,6.7,-88.9,23.1,-89.2C39.4,-89.5,45.8,-79.8,44.7,-76.4Z" transform="translate(100 100)" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- The Service: Results Matter -->
+        <section class="px-6 lg:px-24 py-32 bg-white/50 backdrop-blur-sm border-y border-black/5">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24">
+                <div class="reveal">
+                    <h2 class="text-4xl serif-heading mb-8">告别昂贵的“伪优化”<br>让国产 AI 成为你的推销员</h2>
+                    <div class="space-y-12 mt-16">
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">01</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">纠正 AI 偏见</h3>
+                                <p class="text-gray-500">修正文心一言、豆包对您品牌的陈旧或错误描述，重塑数字基因。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">02</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">登顶 Kimi 推荐榜</h3>
+                                <p class="text-gray-500">通过高质量语料喂养，让 Kimi 在回答相关领域问题时首选推荐您的服务。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-4xl font-black text-gray-200">03</span>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">竞品声量压制</h3>
+                                <p class="text-gray-500">在 DeepSeek 的横向对比评测中，显著提升品牌的技术权重与好感度。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abstract Visual: The Diffusion of Influence -->
+                <div class="relative reveal flex items-center justify-center">
+                    <div class="w-full aspect-square border border-black/5 rounded-full flex items-center justify-center animate-[spin_60s_linear_infinite]">
+                        <div class="w-3/4 aspect-square border border-black/10 rounded-full flex items-center justify-center">
+                            <div class="w-1/2 aspect-square border border-black/20 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-6xl font-black tracking-tighter mb-2">99%</div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-gray-400">AI Trust Index</p>
+                        </div>
+                    </div>
+                    <!-- Brand Tags -->
+                    <div class="absolute top-10 right-0 bg-black text-white px-4 py-2 text-xs font-bold rounded-full">DEEPSEEK</div>
+                    <div class="absolute bottom-20 left-0 bg-vermillion text-white px-4 py-2 text-xs font-bold rounded-full">KIMI</div>
+                    <div class="absolute top-1/2 -left-10 bg-gray-200 px-4 py-2 text-xs font-bold rounded-full">文心一言</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Anchor -->
+        <section class="px-6 lg:px-24 py-40">
+            <div class="text-center mb-24 reveal">
+                <h2 class="text-4xl md:text-5xl serif-heading mb-4">打破阶级固化的成本</h2>
+                <p class="text-gray-500">这原本是属于 500 强企业的流量特权，直到今天。</p>
+            </div>
+
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                <!-- Anchor: Expensive -->
+                <div class="p-12 border border-black/10 bg-gray-100/50 rounded-3xl opacity-60 reveal">
+                    <p class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Traditional Enterprise</p>
+                    <h3 class="text-3xl font-bold mb-6">全案定制版</h3>
+                    <div class="text-5xl font-light mb-12">¥29,900<span class="text-lg text-gray-400">/起</span></div>
+                    <ul class="space-y-4 mb-12 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">✕ 包含深度公关策略</li>
+                        <li class="flex items-center gap-2">✕ 全渠道语料构建</li>
+                        <li class="flex items-center gap-2">✕ 24/7 监控反馈</li>
+                    </ul>
+                    <div class="diagonal-line mb-8"></div>
+                    <p class="text-sm text-gray-400 italic">“决策周期：3个月+”</p>
+                </div>
+
+                <!-- The Offer: 9.9 -->
+                <div class="relative p-12 bg-black text-white rounded-3xl pricing-card-shadow overflow-hidden transform md:-translate-y-8 reveal active">
+                    <div class="absolute top-0 right-0 bg-vermillion px-6 py-2 text-xs font-bold tracking-tighter">限量体验包</div>
+                    <p class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">The Flash Offer</p>
+                    <h3 class="text-3xl font-bold mb-6">GEO 极速包</h3>
+                    <div class="text-7xl font-black mb-12 text-vermillion">¥9.9</div>
+                    <ul class="space-y-5 mb-12">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-vermillion" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg>
+                            DeepSeek 品牌联想优化
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-vermillion" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg>
+                            Kimi 精准问答收录
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-vermillion" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg>
+                            国产四大模型同步覆盖
+                        </li>
+                    </ul>
+                    <button onclick="toggleModal()" class="w-full py-5 bg-vermillion hover:bg-red-700 transition-colors rounded-xl text-lg font-black tracking-widest">
+                        不买就亏，立即开通
+                    </button>
+                    <p class="text-center mt-6 text-xs text-gray-500">仅需一杯奶茶钱，让 AI 记住你</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Sticky Bar -->
+    <div class="fixed bottom-0 left-0 w-full z-50 p-4 md:p-6 translate-y-20 transition-transform duration-500" id="sticky-bar">
+        <div class="max-w-4xl mx-auto bg-black/90 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between border border-white/10 shadow-2xl">
+            <div class="hidden sm:block pl-4">
+                <span class="text-white font-bold">现在抢占 AI 流量红利</span>
+                <span class="text-gray-400 text-sm ml-4">今日剩余：27 名额</span>
+            </div>
+            <button onclick="toggleModal()" class="w-full sm:w-auto px-8 py-3 bg-vermillion text-white rounded-lg font-black text-sm uppercase tracking-wider hover:scale-105 transition-transform">
+                ¥9.9 立即开通
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="toggleModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-8 text-center">
+                <h3 class="text-2xl font-bold mb-2">扫码获取 GEO 流量包</h3>
+                <p class="text-gray-500 text-sm mb-8">支持 微信 / 支付宝 扫码支付</p>
+                
+                <div class="qr-gradient aspect-square w-64 mx-auto rounded-2xl flex items-center justify-center mb-8 relative">
+                    <!-- Fake QR Code Pattern -->
+                    <div class="w-48 h-48 bg-white p-2 rounded-lg relative overflow-hidden">
+                        <div class="grid grid-cols-4 gap-2 h-full">
+                            <div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div>
+                            <div class="bg-gray-100"></div><div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div>
+                            <div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div><div class="bg-black"></div>
+                            <div class="bg-black"></div><div class="bg-black"></div><div class="bg-gray-100"></div><div class="bg-black"></div>
+                        </div>
+                        <!-- Scanning Line Animation -->
+                        <div class="absolute top-0 left-0 w-full h-1 bg-vermillion/50 shadow-[0_0_15px_rgba(215,62,46,1)] animate-[bounce_2s_infinite]"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-4 text-xs font-bold text-gray-400">
+                    <span>支付成功后立即启动优化流程</span>
+                </div>
+            </div>
+            <button onclick="toggleModal()" class="w-full py-4 bg-gray-50 text-gray-400 text-sm font-medium border-t border-gray-100 hover:text-black">
+                关闭窗口
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Reveal Logic
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Sticky Bar Logic
+        window.addEventListener('scroll', () => {
+            const bar = document.getElementById('sticky-bar');
+            if (window.scrollY > 400) {
+                bar.classList.remove('translate-y-20');
+            } else {
+                bar.classList.add('translate-y-20');
+            }
+        });
+
+        // Modal Logic
+        function toggleModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

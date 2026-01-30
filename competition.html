@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascent UI - Rank Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F9FAFB;
+            --border-color: #E5E7EB;
+            --opalescent-gradient: linear-gradient(135deg, rgba(224, 231, 255, 0.4) 0%, rgba(250, 232, 255, 0.4) 50%, rgba(219, 234, 254, 0.4) 100%);
+            --brand-glow: linear-gradient(90deg, #6366f1, #a855f7);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+        }
+
+        .brand-card {
+            border: 1px solid transparent;
+            background-image: linear-gradient(white, white), var(--brand-glow);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
+        }
+
+        .opalescent-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--opalescent-gradient);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .geo-logo {
+            position: relative;
+            z-index: 10;
+        }
+
+        .ripple {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            pointer-events: none;
+        }
+
+        .animate-ripple {
+            animation: ripple-effect 0.8s ease-out;
+        }
+
+        @keyframes ripple-effect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Custom Cursor */
+        #custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease-out;
+        }
+
+        #custom-cursor::after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: #6366f1;
+            border-radius: 50%;
+        }
+
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .card-container {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Number Flip Logic */
+        .number-wrapper {
+            height: 24px;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .number-reel {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .number-reel span {
+            height: 24px;
+            line-height: 24px;
+            display: block;
+        }
+
+        .glazed-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            to { left: 150%; }
+        }
+
+        .brand-card .glazed-shine {
+            animation: shine 3s infinite;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-8">
+
+    <div id="custom-cursor"></div>
+
+    <div class="w-full max-w-2xl">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-12">
+            <div class="geo-logo flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                </div>
+                <span class="font-semibold text-lg tracking-tight text-slate-800">Lumina Analytics</span>
+                <div id="logo-ripple-anchor"></div>
+            </div>
+            <div class="flex gap-4">
+                <div class="h-2 w-24 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-indigo-500 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rank List Area -->
+        <div class="relative h-[480px] rank-list" id="list-root">
+            <!-- Cards will be injected and positioned via JS -->
+        </div>
+    </div>
+
+    <script>
+        const listData = [
+            { id: 'c1', name: 'Global Insight Pro', score: '98.2', rank: 1, isBrand: false },
+            { id: 'c2', name: 'Vertex Systems', score: '97.5', rank: 2, isBrand: false },
+            { id: 'c3', name: 'Nexus Data Hub', score: '96.8', rank: 3, isBrand: false },
+            { id: 'c4', name: 'Quant Edge', score: '95.1', rank: 4, isBrand: false },
+            { id: 'brand', name: 'Lumina Engine', score: '99.9', rank: 5, isBrand: true },
+        ];
+
+        const listRoot = document.getElementById('list-root');
+        const cursor = document.getElementById('custom-cursor');
+        let cardElements = {};
+
+        // 1. Initialize List
+        function initList() {
+            listData.forEach((item, index) => {
+                const container = document.createElement('div');
+                container.className = `card-container ${item.isBrand ? 'z-50' : 'z-10'}`;
+                container.style.transform = `translateY(${index * 84}px)`;
+                
+                container.innerHTML = `
+                    <div class="glass-card ${item.isBrand ? 'brand-card' : ''} relative overflow-hidden flex items-center justify-between p-5 rounded-2xl w-full">
+                        <div class="glazed-shine"></div>
+                        <div class="flex items-center gap-6">
+                            <div class="number-wrapper text-xl font-medium text-slate-400">
+                                <div class="number-reel" id="reel-${item.id}">
+                                    ${[5,4,3,2,1].map(n => `<span>#${n}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-slate-800">${item.name}</span>
+                                <span class="text-xs font-mono text-slate-400 uppercase tracking-widest">${item.isBrand ? 'Our Product' : 'Competitor'}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8">
+                            <div class="flex flex-col items-end">
+                                <span class="text-xs text-slate-400 font-mono">CONFIDENCE</span>
+                                <span class="font-mono text-indigo-600 font-bold">${item.score}%</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+                                ${item.isBrand ? 
+                                    `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>` :
+                                    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listRoot.appendChild(container);
+                cardElements[item.id] = { el: container, rank: item.rank };
+                updateReel(item.id, item.rank);
+            });
+        }
+
+        function updateReel(id, rank) {
+            const reel = document.getElementById(`reel-${id}`);
+            const offset = (rank - 5) * 24;
+            reel.style.transform = `translateY(${offset}px)`;
+        }
+
+        // 2. Cursor Motion (Bezier simulation)
+        async function runDemo() {
+            const logo = document.querySelector('.geo-logo');
+            const rect = logo.getBoundingClientRect();
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight / 2;
+            const endX = rect.left + 20;
+            const endY = rect.top + 20;
+
+            // Move cursor to center first
+            cursor.style.left = `${startX}px`;
+            cursor.style.top = `${startY}px`;
+
+            await new Promise(r => setTimeout(r, 800));
+
+            // Move to Logo with Bezier-like curve
+            let startTime = null;
+            const duration = 1200;
+
+            function animateCursor(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+
+                // Simple arc
+                const currentX = startX + (endX - startX) * eased;
+                const currentY = startY + (endY - startY) * eased - (Math.sin(progress * Math.PI) * 100);
+
+                cursor.style.left = `${currentX}px`;
+                cursor.style.top = `${currentY}px`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateCursor);
+                } else {
+                    triggerClick();
+                }
+            }
+
+            requestAnimationFrame(animateCursor);
+        }
+
+        async function triggerClick() {
+            // Click visual
+            cursor.style.transform = 'scale(0.7)';
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple animate-ripple';
+            const logo = document.querySelector('.geo-logo');
+            logo.appendChild(ripple);
+            
+            setTimeout(() => {
+                cursor.style.transform = 'scale(1)';
+                startAscent();
+            }, 200);
+        }
+
+        // 3. Staircase Ascent Logic
+        async function startAscent() {
+            const steps = 4;
+            const brandId = 'brand';
+            let currentOrder = ['c1', 'c2', 'c3', 'c4', 'brand'];
+
+            for (let i = 0; i < steps; i++) {
+                await new Promise(r => setTimeout(r, 200)); // Micro-pause
+
+                // Swap indices
+                const brandIdx = currentOrder.indexOf(brandId);
+                const targetIdx = brandIdx - 1;
+                const targetId = currentOrder[targetIdx];
+
+                // Update array
+                [currentOrder[brandIdx], currentOrder[targetIdx]] = [currentOrder[targetIdx], currentOrder[brandIdx]];
+
+                // Update Visuals
+                updateLayout(currentOrder);
+                
+                // Update Ranks
+                cardElements[brandId].rank--;
+                cardElements[targetId].rank++;
+                updateReel(brandId, cardElements[brandId].rank);
+                updateReel(targetId, cardElements[targetId].rank);
+
+                // Progress Bar
+                document.getElementById('progress-bar').style.width = `${((i + 1) / steps) * 100}%`;
+
+                await new Promise(r => setTimeout(r, 300)); // Animation time
+            }
+        }
+
+        function updateLayout(order) {
+            order.forEach((id, index) => {
+                const container = cardElements[id].el;
+                container.style.transform = `translateY(${index * 84}px)`;
+            });
+        }
+
+        // Global mouse move for immersion
+        window.addEventListener('mousemove', (e) => {
+            // Only manual if demo not active or after demo finishes
+            // For this landing page feel, we'll just offset the cursor slightly
+        });
+
+        // Start everything
+        window.onload = () => {
+            initList();
+            setTimeout(runDemo, 1000);
+        };
+    </script>
+</body>
+</html>

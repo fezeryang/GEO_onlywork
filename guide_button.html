@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash UI - Alabaster AI Avatar</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap');
+
+        :root {
+            --bg-color: #f8f9fa;
+            --avatar-bg: #ffffff;
+            --eye-color: #1a1c2c;
+            --accent: #5e5ce6;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Documentation UI - Negative Space Focus */
+        .ui-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 60px;
+            box-sizing: border-box;
+        }
+
+        .label-group {
+            max-width: 400px;
+        }
+
+        .label-group h1 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .label-group p {
+            font-size: 18px;
+            color: #222;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .status-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            background: rgba(94, 92, 230, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        /* The Avatar Button */
+        .avatar-trigger {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 64px;
+            height: 64px;
+            background: var(--avatar-bg);
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            z-index: 1000;
+            border: 1px solid rgba(0,0,0,0.02);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .avatar-trigger:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Face Structure */
+        .avatar-face {
+            position: relative;
+            width: 32px;
+            height: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .eye-socket {
+            width: 10px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye {
+            width: 8px;
+            height: 12px;
+            background: var(--eye-color);
+            border-radius: 10px;
+            transition: height 0.1s ease-out, transform 0.1s ease-out;
+            transform-origin: center;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            transition: var(--transition-smooth);
+            opacity: 0.5;
+        }
+
+        /* Hover States for Face */
+        .avatar-trigger:hover .eye {
+            height: 4px;
+            width: 10px;
+            transform: translateY(2px);
+            border-radius: 2px;
+        }
+
+        .avatar-trigger:hover .mouth {
+            width: 12px;
+            height: 4px;
+            border-radius: 0 0 10px 10px;
+            background: var(--eye-color);
+            opacity: 1;
+            bottom: -6px;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .eye-blink {
+            animation: blink 4s infinite;
+        }
+
+        /* Background Kinematics */
+        .bg-mesh {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(94, 92, 230, 0.03) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, rgba(94, 92, 230, 0.03) 0, transparent 50%);
+            z-index: -1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-mesh"></div>
+
+    <main class="ui-canvas">
+        <div class="label-group">
+            <h1>Kinematic Assistant v1.0</h1>
+            <p>A minimalist interface designed with alabaster kinematics. Move your cursor to engage the observer.</p>
+            <div class="status-badge" id="coord-display">SYSTEM: ACTIVE // IDLE</div>
+        </div>
+
+        <button class="avatar-trigger" id="avatarBtn">
+            <div class="avatar-face">
+                <div class="eye-socket">
+                    <div class="eye eye-blink" id="eyeL"></div>
+                </div>
+                <div class="eye-socket">
+                    <div class="eye eye-blink" id="eyeR"></div>
+                </div>
+                <div class="mouth"></div>
+            </div>
+        </button>
+    </main>
+
+    <script>
+        const btn = document.getElementById('avatarBtn');
+        const eyeL = document.getElementById('eyeL');
+        const eyeR = document.getElementById('eyeR');
+        const status = document.getElementById('coord-display');
+
+        let isHovered = false;
+
+        btn.addEventListener('mouseenter', () => {
+            isHovered = true;
+            status.innerText = "SYSTEM: ENGAGED // HAPPY";
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            isHovered = false;
+            status.innerText = "SYSTEM: ACTIVE // IDLE";
+            // Reset position
+            eyeL.style.transform = `translate(0, 0)`;
+            eyeR.style.transform = `translate(0, 0)`;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isHovered) return;
+
+            const rect = btn.getBoundingClientRect();
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
+
+            // Calculate angle between mouse and button center
+            const angle = Math.atan2(e.clientY - btnCenterY, e.clientX - btnCenterX);
+            
+            // Limit the distance the "pupil" can move within the socket
+            const distance = 3; 
+            const moveX = Math.cos(angle) * distance;
+            const moveY = Math.sin(angle) * distance;
+
+            // Apply movement
+            eyeL.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            eyeR.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            
+            // Update status for visual flair
+            if(Math.random() > 0.95) {
+                status.innerText = `OBSERVING: ${e.clientX}, ${e.clientY}`;
+            }
+        });
+
+        // Organic Random Blinking Logic
+        function triggerRandomBlink() {
+            const eyes = document.querySelectorAll('.eye');
+            const delay = Math.random() * 3000 + 2000;
+            
+            setTimeout(() => {
+                eyes.forEach(eye => {
+                    eye.style.animation = 'none';
+                    eye.offsetHeight; // trigger reflow
+                    eye.style.animation = 'blink 0.2s ease-in-out';
+                });
+                
+                // Random double blink
+                if(Math.random() > 0.8) {
+                    setTimeout(() => {
+                        eyes.forEach(eye => {
+                            eye.style.animation = 'none';
+                            eye.offsetHeight;
+                            eye.style.animation = 'blink 0.2s ease-in-out';
+                        });
+                    }, 250);
+                }
+                
+                triggerRandomBlink();
+            }, delay);
+        }
+
+        // Start the organic loop
+        triggerRandomBlink();
+
+        // Idle "Looking Around" Logic
+        setInterval(() => {
+            if (!isHovered && Math.random() > 0.7) {
+                const randomX = (Math.random() - 0.5) * 6;
+                const randomY = (Math.random() - 0.5) * 6;
+                
+                eyeL.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                eyeR.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                eyeL.style.transform = `translate(${randomX}px, ${randomY}px)`;
+                eyeR.style.transform = `translate(${randomX}px, ${randomY}px)`;
+                
+                setTimeout(() => {
+                    eyeL.style.transition = 'transform 0.1s ease-out';
+                    eyeR.style.transition = 'transform 0.1s ease-out';
+                }, 600);
+            }
+        }, 3000);
+
+    </script>
+</body>
+</html>
