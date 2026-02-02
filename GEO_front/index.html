@@ -39,13 +39,6 @@
 
         .serif-heading { font-family: 'Noto+Serif+SC', serif; }
 
-        /* Shimmer Animation */
-        @keyframes subtle-sheen {
-            0% { transform: translateX(-150%) skewX(-15deg); }
-            40% { transform: translateX(150%) skewX(-15deg); }
-            100% { transform: translateX(150%) skewX(-15deg); }
-        }
-
         /* Fibrous Mulberry Diffusion Effect */
         .paper-texture::before {
             content: "";
@@ -516,6 +509,26 @@
             pointer-events: none;
         }
 
+        .vs-circle-pricing {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #fff;
+            z-index: 11;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
         .split-purchase:has(.side-custom:hover) .side-custom { flex: 1.5; }
         .split-purchase:has(.side-custom:hover) .side-value { flex: 0.5; opacity: 0.6; filter: grayscale(1); }
 
@@ -525,6 +538,7 @@
         @media (max-width: 1024px) {
             .split-purchase { height: auto; flex-direction: column; }
             .side-custom, .side-value { padding: 40px; min-height: 400px; }
+            .vs-circle-pricing { display: none; }
             .divider-pricing { display: none; }
         }
 
@@ -534,7 +548,7 @@
         }
         
         .mock-ui-container {
-              transform: scale(1.05);
+              transform: scale(1.17);
               transform-origin: right center;
           }
          
@@ -667,7 +681,8 @@
 
             <div class="max-w-7xl mx-auto split-purchase reveal">
                 <div class="divider-pricing"></div>
-                
+                <div class="vs-circle-pricing" id="vs-circle-pricing">VS</div>
+
                 <!-- LEFT SIDE: CUSTOM -->
                 <section class="side-custom">
                     <svg class="custom-path-svg" viewBox="0 0 100 100">
@@ -760,14 +775,13 @@
 
     <!-- Sticky Bar -->
     <div class="fixed bottom-0 left-0 w-full z-50 p-4 md:p-6 translate-y-32 transition-transform duration-500 ease-out" id="sticky-bar">
-        <div class="max-w-5xl mx-auto bg-black/90 backdrop-blur-xl -webkit-backdrop-blur-xl rounded-2xl p-6 flex items-center justify-between border border-white/10 shadow-2xl">
-            <div class="hidden sm:flex flex-col pl-2 gap-1">
-                <span class="text-white font-bold tracking-tight serif-heading text-xl">99% 的品牌在 AI 搜索中是隐形的。9.9 元，获取你的全方位 GEO 报告。</span>
-                <span class="text-gray-400 text-sm font-medium">剩余 <span id="remaining-slots" class="text-vermillion font-bold text-base">9</span>/30 名额</span>
+        <div class="max-w-4xl mx-auto bg-black/90 backdrop-blur-xl -webkit-backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between border border-white/10 shadow-2xl">
+            <div class="hidden sm:block pl-4">
+                <span class="text-white font-bold tracking-tight serif-heading text-lg">现在抢占 AI 流量红利</span>
+                <span class="text-gray-400 text-sm ml-4 font-light">今日剩余：<span id="remaining-slots">9</span>/30 名额</span>
             </div>
-            <button onclick="toggleModal()" class="group relative overflow-hidden w-full sm:w-auto px-10 py-4 bg-vermillion text-white rounded-xl font-black text-base uppercase tracking-wider hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_0_25px_rgba(215,62,46,0.4)] hover:shadow-[0_0_35px_rgba(215,62,46,0.6)] border border-white/10">
-                <span class="relative z-10">9.9 立即查阅报告</span>
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[subtle-sheen_3s_infinite]"></div>
+            <button onclick="toggleModal()" class="w-full sm:w-auto px-8 py-3 bg-vermillion text-white rounded-lg font-black text-sm uppercase tracking-wider hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(215,62,46,0.3)]">
+                ¥9.9 立即开通
             </button>
         </div>
     </div>
@@ -968,13 +982,21 @@
         // Pricing Split Interaction
         (function() {
             const splitContainer = document.querySelector('.split-purchase');
+            const vsCircle = document.getElementById('vs-circle-pricing');
             const valueSide = document.querySelector('.side-value');
 
-            if (!splitContainer) return;
+            if (!splitContainer || !vsCircle) return;
 
             splitContainer.addEventListener('mousemove', (e) => {
                 const rect = splitContainer.getBoundingClientRect();
                 const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Move the VS circle slightly with mouse (limited range)
+                const moveX = (x - rect.width / 2) / 25;
+                const moveY = (y - rect.height / 2) / 25;
+                
+                vsCircle.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
 
                 // Adjust opacity of grid on value side based on distance
                 if (x > rect.width / 2) {
@@ -982,6 +1004,10 @@
                     const grid = valueSide.querySelector('.grid-bg-pricing');
                     if (grid) grid.style.opacity = 0.3 + (intensity * 0.4);
                 }
+            });
+
+            splitContainer.addEventListener('mouseleave', () => {
+                vsCircle.style.transform = `translate(-50%, -50%)`;
             });
         })();
     </script>
